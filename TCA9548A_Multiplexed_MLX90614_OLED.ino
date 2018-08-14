@@ -1,19 +1,5 @@
 /*************************************************** 
-  This is a library example for the MLX90614 Temp Sensor
-
-  Designed specifically to work with the MLX90614 sensors in the
-  adafruit shop
-  ----> https://www.adafruit.com/products/1748
-  ----> https://www.adafruit.com/products/1749
-
-  These sensors use I2C to communicate, 2 pins are required to  
-  interface
-  Adafruit invests time and resources providing this open source code, 
-  please support Adafruit and open-source hardware by purchasing 
-  products from Adafruit!
-
-  Written by Limor Fried/Ladyada for Adafruit Industries.  
-  BSD license, all text above must be included in any redistribution
+  eMB Brains v4 - Dual Multiplexed Temp Monitor
  ****************************************************/
 
 #include <SPI.h>
@@ -34,7 +20,6 @@ double l_o_temp;
 
 void tcaselect(uint8_t i) {
   if (i > 7) return;
- 
   Wire.beginTransmission(TCAADDR);
   Wire.write(1 << i);
   Wire.endTransmission();  
@@ -43,8 +28,7 @@ void tcaselect(uint8_t i) {
 void setup() {
   Wire.begin();
   Serial.begin(9600);
-  while (!Serial);
-  Serial.println("Adafruit MLX90614 test");  
+  // while (!Serial);
 
   init_displays();
   
@@ -75,7 +59,6 @@ void loop() {
   tcaselect(7);
   l_a_temp = readAmbientTempF();
   l_o_temp = readObjectTempF();
-  
   Serial.print("Left Ambient = "); Serial.print(l_a_temp); 
   Serial.print("*F\tLeft Object = "); Serial.print(l_o_temp); Serial.println("*F");
   Serial.println();
@@ -96,11 +79,6 @@ void loop() {
 void init_displays() {
   tcaselect(7);
   display.begin(SSD1306_SWITCHCAPVCC, 0x3C);
-  tcaselect(1);
-  display.begin(SSD1306_SWITCHCAPVCC, 0x3C);
-  // init done
-
-  tcaselect(7);
   // Clear the buffer.
   display.clearDisplay();
   display.setTextSize(2);
@@ -110,12 +88,14 @@ void init_displays() {
   display.display();
   
   tcaselect(1);
+  display.begin(SSD1306_SWITCHCAPVCC, 0x3C);
   display.clearDisplay();
   display.setTextSize(2);
   display.setTextColor(WHITE);
   display.setCursor(0,0);
   display.print("Right");
   display.display();
+  // init done
 }
 
 void display_temp(String ambient_temp, String object_temp) {
@@ -127,11 +107,6 @@ void display_temp(String ambient_temp, String object_temp) {
   display.setCursor(0,16);
   display.println("M:" + object_temp + " F");
   display.display();
-  
-//  tcaselect(1);
-//  display_right.clearDisplay();
-//  display_right.print(String(r_temp));
-//  display_right.display();
 }
 
 boolean MLX90614_begin(uint8_t tca_port) {
